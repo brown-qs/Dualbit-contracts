@@ -36,6 +36,7 @@ contract DRC20 {
 
     function mint(address to, uint256 amount) external {
         require(msg.sender == factory, "unauthorized");
+        require(to != address(0), "zero address not allowed");
         _mint(to, amount);
     }
 

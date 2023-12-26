@@ -11,6 +11,7 @@ contract DRC20Factory  {
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
     bytes32 public constant MINT_TYPEHASH = keccak256(abi.encodePacked("Mint(address token,address to,uint256 amount,string txid)"));
     bytes32 public DOMAIN_SEPARATOR;
+    uint256 public constant MAX_FEE = 0.01 ether;
 
     struct Parameters {
         string name;
@@ -112,21 +113,25 @@ contract DRC20Factory  {
     }
 
     function withdraw(address to) external onlyOwner {
+        require(to != address(0), "zero address not allowed");
         uint256 balance = address(this).balance;
         payable(to).transfer(balance);
     }
 
     function setOwner(address _owner) external onlyOwner {
+        require(_owner != address(0), "zero address not allowed");
         emit OwnerChanged(owner, _owner);
         owner = _owner;
     }
 
     function setFee(uint256 _fee) external onlyOwner {
+        require(_fee <= MAX_FEE, "Fee exceeds maximum allowed limit");
         emit FeeChanged(fee, _fee);
         fee = _fee;
     }
 
     function addSigner(address account) external onlyOwner {
+        require(account != address(0), "zero address not allowed");
         require(!authorized[account], "already exists");
 
         indexes[account] = signers.length;
@@ -137,6 +142,7 @@ contract DRC20Factory  {
     }
 
     function removeSigner(address account) external onlyOwner {
+        require(account != address(0), "zero address not allowed");
         require(authorized[account], "non-existent");
         require(indexes[account] < signers.length, "index out of range");
 
